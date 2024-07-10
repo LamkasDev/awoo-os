@@ -1,4 +1,4 @@
-use crate::vga;
+use crate::driver::vga;
 use volatile::Volatile;
 
 pub const VGA_BUFFER_HEIGHT: usize = 25;
