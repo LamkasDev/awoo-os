@@ -79,7 +79,7 @@ impl fmt::Write for VgaWriter {
     }
 }
 
-#[macro_export]
+/* #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::driver::vga::vga::_print(format_args!($($arg)*)));
 }
@@ -96,4 +96,4 @@ pub fn _print(args: fmt::Arguments) {
     interrupts::without_interrupts(|| {
         VGA_WRITER.lock().write_fmt(args).unwrap();
     });
-}
+} */

@@ -2,10 +2,10 @@
 #![no_main] // disable all Rust-level entry points
 #![feature(abi_x86_interrupt)]
 #![feature(custom_test_frameworks)]
-#![test_runner(awoo_os::test::test::test_runner)]
+#![test_runner(awoo_os_kernel::test::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use awoo_os::{gdt::gdt, hlt_loop, serial_println, special::qemu};
+use awoo_os_kernel::{gdt::gdt, hlt_loop, serial_println, special::qemu};
 use lazy_static::lazy_static;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
@@ -15,7 +15,7 @@ lazy_static! {
         unsafe {
             idt.double_fault
                 .set_handler_fn(test_double_fault_handler)
-                .set_stack_index(awoo_os::gdt::tss::DOUBLE_FAULT_IST_INDEX);
+                .set_stack_index(awoo_os_kernel::gdt::tss::DOUBLE_FAULT_IST_INDEX);
         }
         idt
     };

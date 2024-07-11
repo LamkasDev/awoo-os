@@ -1,4 +1,4 @@
-#[cfg(test)]
+/* #[cfg(test)]
 use crate::driver::vga::buffer;
 #[cfg(test)]
 use crate::driver::vga::vga;
@@ -33,3 +33,4 @@ fn test_println_output() {
         }
     });
 }
+ */

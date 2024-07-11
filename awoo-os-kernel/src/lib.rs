@@ -6,8 +6,9 @@
 #![feature(abi_x86_interrupt)]
 
 #[cfg(test)]
-use bootloader::entry_point;
-use bootloader::BootInfo;
+use bootloader_api::entry_point;
+use bootloader_api::{config::Mapping, BootInfo, BootloaderConfig};
+use driver::keyboard;
 
 extern crate alloc;
 
@@ -21,23 +22,33 @@ pub mod pic;
 pub mod serial;
 pub mod special;
 pub mod test;
+pub mod task;
+
+pub static BOOTLOADER_CONFIG: BootloaderConfig = {
+    let mut config = BootloaderConfig::new_default();
+    config.mappings.physical_memory = Some(Mapping::Dynamic);
+    config
+};
 
 #[cfg(test)]
-entry_point!(test_kernel_main);
+entry_point!(test_kernel_main, config = &BOOTLOADER_CONFIG);
 
 #[cfg(test)]
-fn test_kernel_main(boot_info: &'static BootInfo) -> ! {
+fn test_kernel_main(boot_info: &'static mut BootInfo) -> ! {
     init(boot_info);
     test_main();
     hlt_loop();
 }
 
-pub fn init(boot_info: &'static BootInfo) {
+pub fn init(boot_info: &'static mut BootInfo) {
     gdt::gdt::init_gdt();
     idt::idt::init_idt();
     pic::pic::init_pics();
     x86_64::instructions::interrupts::enable();
     memory::memory::init_memory(boot_info);
+    let mut executor = task::executor::Executor::new();
+    executor.spawn(task::task::Task::new(keyboard::task::print_keypresses()));
+    executor.run();
 }
 
 pub fn hlt_loop() -> ! {

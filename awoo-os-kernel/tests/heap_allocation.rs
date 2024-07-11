@@ -1,19 +1,19 @@
 #![no_std] // don't link the Rust standard library
 #![no_main] // disable all Rust-level entry points
 #![feature(custom_test_frameworks)]
-#![test_runner(awoo_os::test::test::test_runner)]
+#![test_runner(awoo_os_kernel::test::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 extern crate alloc;
 
 use alloc::{boxed::Box, vec::Vec};
-use awoo_os::{hlt_loop, memory::heap::HEAP_SIZE};
-use bootloader::{entry_point, BootInfo};
+use awoo_os_kernel::{hlt_loop, memory::heap::HEAP_SIZE, BOOTLOADER_CONFIG};
+use bootloader_api::{entry_point, BootInfo};
 
-entry_point!(test_kernel_main);
+entry_point!(test_kernel_main, config = &BOOTLOADER_CONFIG);
 
-fn test_kernel_main(boot_info: &'static BootInfo) -> ! {
-    awoo_os::init(boot_info);
+fn test_kernel_main(boot_info: &'static mut BootInfo) -> ! {
+    awoo_os_kernel::init(boot_info);
     test_main();
     hlt_loop();
 }
