@@ -144,20 +144,30 @@ dependencies = [
 name = "awoo-os-kernel"
 version = "0.1.0"
 dependencies = [
+ "bootloader-x86_64-common",
  "bootloader_api",
- "conquer-once",
+ "conquer-once 0.4.0",
  "crossbeam-queue",
+ "embedded-graphics",
  "futures-util",
  "lazy_static",
  "linked_list_allocator",
- "noto-sans-mono-bitmap",
+ "log",
+ "noto-sans-mono-bitmap 0.3.0",
  "pc-keyboard",
  "pic8259",
  "spin 0.5.2",
+ "tinytga",
  "uart_16550",
  "volatile 0.2.7",
  "x86_64",
 ]
+
+[[package]]
+name = "az"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b7e4c2464d97fe331d41de9d5db0def0a96f4d823b8b32a2efd503578988973"
 
 [[package]]
 name = "bincode"
@@ -240,6 +250,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "bootloader-x86_64-common"
+version = "0.11.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "501ac7a9e71145dce9aee3513f80a62a4becf07339b226f2a7dfc6f5f53e4311"
+dependencies = [
+ "bootloader-boot-config",
+ "bootloader_api",
+ "conquer-once 0.3.2",
+ "log",
+ "noto-sans-mono-bitmap 0.2.0",
+ "rand",
+ "rand_hc",
+ "raw-cpuid",
+ "spinning_top",
+ "uart_16550",
+ "usize_conversions",
+ "x86_64",
+ "xmas-elf",
+]
+
+[[package]]
 name = "bootloader_api"
 version = "0.11.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -268,18 +299,27 @@ dependencies = [
 
 [[package]]
 name = "conquer-once"
-version = "0.2.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96eb12fb69466716fbae9009d389e6a30830ae8975e170eff2d2cff579f9efa3"
+checksum = "7c6d3a9775a69f6d1fe2cc888999b67ed30257d3da4d2af91984e722f2ec918a"
+dependencies = [
+ "conquer-util",
+]
+
+[[package]]
+name = "conquer-once"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5d008a441c0f269f36ca13712528069a86a3e60dffee1d98b976eb3b0b2160b4"
 dependencies = [
  "conquer-util",
 ]
 
 [[package]]
 name = "conquer-util"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "654fb2472cc369d311c547103a1fa81d467bef370ae7a0680f65939895b1182a"
+checksum = "e763eef8846b13b380f37dfecda401770b0ca4e56e95170237bd7c25c7db3582"
 
 [[package]]
 name = "crc"
@@ -310,6 +350,29 @@ name = "crossbeam-utils"
 version = "0.8.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
+
+[[package]]
+name = "embedded-graphics"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0649998afacf6d575d126d83e68b78c0ab0e00ca2ac7e9b3db11b4cbe8274ef0"
+dependencies = [
+ "az",
+ "byteorder",
+ "embedded-graphics-core",
+ "float-cmp",
+ "micromath",
+]
+
+[[package]]
+name = "embedded-graphics-core"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba9ecd261f991856250d2207f6d8376946cd9f412a2165d3b75bc87a0bc7a044"
+dependencies = [
+ "az",
+ "byteorder",
+]
 
 [[package]]
 name = "errno"
@@ -383,6 +446,15 @@ dependencies = [
  "bitflags 1.3.2",
  "byteorder",
  "log",
+]
+
+[[package]]
+name = "float-cmp"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
@@ -670,10 +742,47 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
+name = "micromath"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3c8dda44ff03a2f238717214da50f65d5a53b45cd213a7370424ffdb6fae815"
+
+[[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
+name = "nom"
+version = "7.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
+]
+
+[[package]]
+name = "noto-sans-mono-bitmap"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a27daf9557165efe1d09b52f97393bf6283cadb0a76fbe64a1061e15553a994a"
+
+[[package]]
 name = "noto-sans-mono-bitmap"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9aa163ae3f5d28f11e4906fac432e39937daee74920caec72a4962810646e0fb"
+
+[[package]]
+name = "num-traits"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+dependencies = [
+ "autocfg",
+]
 
 [[package]]
 name = "parking"
@@ -793,6 +902,39 @@ name = "radium"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09"
+
+[[package]]
+name = "rand"
+version = "0.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404"
+dependencies = [
+ "rand_core",
+]
+
+[[package]]
+name = "rand_core"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
+
+[[package]]
+name = "rand_hc"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b363d4f6370f88d62bf586c80405657bde0f0e1b8945d47d2ad59b906cb4f54"
+dependencies = [
+ "rand_core",
+]
+
+[[package]]
+name = "raw-cpuid"
+version = "10.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c297679cb867470fa8c9f67dbba74a78d78e3e98d7cf2b08d6d71540f797332"
+dependencies = [
+ "bitflags 1.3.2",
+]
 
 [[package]]
 name = "rustix"
@@ -984,6 +1126,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tinytga"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "477839bd612acb4d0551915eaf6eef8cc1b3a9dd58e18e9c2b746c78614a25d5"
+dependencies = [
+ "embedded-graphics",
+ "nom",
+]
+
+[[package]]
 name = "tracing"
 version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1015,6 +1167,12 @@ name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+
+[[package]]
+name = "usize_conversions"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f70329e2cbe45d6c97a5112daad40c34cd9a4e18edb5a2a18fefeb584d8d25e5"
 
 [[package]]
 name = "uuid"
@@ -1230,3 +1388,18 @@ dependencies = [
  "rustversion",
  "volatile 0.4.6",
 ]
+
+[[package]]
+name = "xmas-elf"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d29b4d8e7beaceb4e77447ba941a7600d23d0319ab52da0461abea214832d5a"
+dependencies = [
+ "zero",
+]
+
+[[package]]
+name = "zero"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fe21bcc34ca7fe6dd56cc2cb1261ea59d6b93620215aefb5ea6032265527784"

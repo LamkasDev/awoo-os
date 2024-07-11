@@ -2,7 +2,6 @@ use super::{buffer, color};
 use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
-use x86_64::instructions::interrupts;
 
 lazy_static! {
     pub static ref VGA_WRITER: Mutex<VgaWriter> = Mutex::new(VgaWriter {

@@ -9,6 +9,7 @@
 use bootloader_api::entry_point;
 use bootloader_api::{config::Mapping, BootInfo, BootloaderConfig};
 use driver::keyboard;
+use logger::logger::init_logger;
 
 extern crate alloc;
 
@@ -16,13 +17,14 @@ pub mod driver;
 pub mod gdt;
 pub mod idt;
 pub mod int;
+pub mod logger;
 pub mod memory;
 pub mod panic;
 pub mod pic;
 pub mod serial;
 pub mod special;
-pub mod test;
 pub mod task;
+pub mod test;
 
 pub static BOOTLOADER_CONFIG: BootloaderConfig = {
     let mut config = BootloaderConfig::new_default();
@@ -41,11 +43,16 @@ fn test_kernel_main(boot_info: &'static mut BootInfo) -> ! {
 }
 
 pub fn init(boot_info: &'static mut BootInfo) {
+    memory::memory::init_memory(
+        boot_info.physical_memory_offset,
+        &mut boot_info.memory_regions,
+    );
+    init_logger(&mut boot_info.framebuffer);
     gdt::gdt::init_gdt();
     idt::idt::init_idt();
     pic::pic::init_pics();
     x86_64::instructions::interrupts::enable();
-    memory::memory::init_memory(boot_info);
+
     let mut executor = task::executor::Executor::new();
     executor.spawn(task::task::Task::new(keyboard::task::print_keypresses()));
     executor.run();

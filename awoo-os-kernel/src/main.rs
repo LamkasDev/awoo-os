@@ -10,7 +10,6 @@ use bootloader_api::{entry_point, BootInfo};
 entry_point!(kernel_main, config = &BOOTLOADER_CONFIG);
 
 fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
-    println!("Hello World{}", "!");
     awoo_os_kernel::init(boot_info);
 
     #[cfg(test)]
