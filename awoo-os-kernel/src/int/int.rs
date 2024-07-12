@@ -5,6 +5,13 @@ use crate::pic::pic;
 pub enum InterruptIndex {
     Timer = pic::PIC_1_OFFSET,
     Keyboard,
+    Cascade,
+    COM2,
+    COM1,
+    LPT2,
+    Floppy,
+    LPT1,
+    RTC
 }
 
 impl InterruptIndex {

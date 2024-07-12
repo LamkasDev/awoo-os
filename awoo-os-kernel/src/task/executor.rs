@@ -35,7 +35,7 @@ impl Executor {
         }
     }
     
-    fn run_ready_tasks(&mut self) {
+    pub fn run_ready_tasks(&mut self) {
         // destructure `self` to avoid borrow checker errors
         let Self {
             tasks,

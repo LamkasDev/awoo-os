@@ -1,9 +1,11 @@
+use crate::driver::shell::queue::println;
+
 use super::queue::ScancodeStream;
-use crate::print;
+use alloc::{format, string::ToString};
 use futures_util::StreamExt;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 
-pub async fn print_keypresses() {
+pub async fn scancode_task() {
     let mut scancodes = ScancodeStream::new();
     let mut keyboard = Keyboard::new(
         ScancodeSet1::new(),
@@ -15,8 +17,8 @@ pub async fn print_keypresses() {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
             if let Some(key) = keyboard.process_keyevent(key_event) {
                 match key {
-                    DecodedKey::Unicode(character) => print!("{}", character),
-                    DecodedKey::RawKey(key) => print!("{:?}", key),
+                    DecodedKey::Unicode(character) => println(&character.to_string()),
+                    DecodedKey::RawKey(key) => println(&format!("{:?}", key)),
                 }
             }
         }

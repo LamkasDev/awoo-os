@@ -1,7 +1,8 @@
-use super::font;
+use super::font::{self, CHAR_RASTER_HEIGHT, CHAR_RASTER_WIDTH};
+use alloc::vec::Vec;
 use bootloader_api::info::{FrameBufferInfo, PixelFormat};
-use core::{fmt, ptr};
-use noto_sans_mono_bitmap::RasterizedChar;
+use core::ptr;
+use noto_sans_mono_bitmap::{get_raster_width, FontWeight, RasterHeight, RasterizedChar};
 
 /// Allows logging text to a pixel-based framebuffer.
 pub struct FrameBufferWriter {
@@ -9,6 +10,8 @@ pub struct FrameBufferWriter {
     pub info: FrameBufferInfo,
     pub x_pos: usize,
     pub y_pos: usize,
+    pub raster_height: RasterHeight,
+    pub raster_width: usize,
 }
 
 impl FrameBufferWriter {
@@ -19,13 +22,15 @@ impl FrameBufferWriter {
             info,
             x_pos: 0,
             y_pos: 0,
+            raster_height: CHAR_RASTER_HEIGHT,
+            raster_width: CHAR_RASTER_WIDTH,
         };
         logger.clear();
         logger
     }
 
     pub fn newline(&mut self) {
-        self.y_pos += font::CHAR_RASTER_HEIGHT.val() + font::LINE_SPACING;
+        self.y_pos += self.raster_height.val() + font::LINE_SPACING;
         self.carriage_return()
     }
 
@@ -48,6 +53,23 @@ impl FrameBufferWriter {
         self.info.height
     }
 
+    pub fn set_font_size(&mut self, size: RasterHeight) {
+        self.raster_height = size;
+        self.raster_width = get_raster_width(FontWeight::Regular, self.raster_height);
+    }
+    
+    pub fn write_str(&mut self, s: &str) {
+        for c in s.chars() {
+            self.write_char(c);
+        }
+    }
+    
+    pub fn write_str_vec(&mut self, s: Vec<char>) {
+        for c in s {
+            self.write_char(c);
+        }
+    }
+
     /// Writes a single char to the framebuffer. Takes care of special control characters, such as
     /// newlines and carriage returns.
     pub fn write_char(&mut self, c: char) {
@@ -55,15 +77,15 @@ impl FrameBufferWriter {
             '\n' => self.newline(),
             '\r' => self.carriage_return(),
             c => {
-                let new_xpos = self.x_pos + font::CHAR_RASTER_WIDTH;
+                let new_xpos = self.x_pos + self.raster_width;
                 if new_xpos >= self.width() {
                     self.newline();
                 }
-                let new_ypos = self.y_pos + font::CHAR_RASTER_HEIGHT.val() + font::BORDER_PADDING;
+                let new_ypos = self.y_pos + self.raster_height.val() + font::BORDER_PADDING;
                 if new_ypos >= self.height() {
                     self.clear();
                 }
-                self.write_rendered_char(font::get_char_raster(c));
+                self.write_rendered_char(font::get_char_raster(c, self.raster_height));
             }
         }
     }
@@ -121,12 +143,3 @@ impl FrameBufferWriter {
 
 unsafe impl Send for FrameBufferWriter {}
 unsafe impl Sync for FrameBufferWriter {}
-
-impl fmt::Write for FrameBufferWriter {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        for c in s.chars() {
-            self.write_char(c);
-        }
-        Ok(())
-    }
-}

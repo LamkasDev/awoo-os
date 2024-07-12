@@ -1,3 +1,4 @@
+use crate::driver::shell::queue::println;
 use crate::gdt::tss;
 use lazy_static::lazy_static;
 use x86_64::instructions::segmentation::{Segment, CS};
@@ -36,4 +37,5 @@ pub fn init_gdt() {
         GS::set_reg(SegmentSelector(0));
         load_tss(GDT.1.tss_selector);
     }
+    println("initialized GDT...");
 }

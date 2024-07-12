@@ -8,8 +8,7 @@
 #[cfg(test)]
 use bootloader_api::entry_point;
 use bootloader_api::{config::Mapping, BootInfo, BootloaderConfig};
-use driver::keyboard;
-use logger::logger::init_logger;
+use driver::{keyboard, shell::{queue::println, task::logging_task}, timer::{self}};
 
 extern crate alloc;
 
@@ -17,7 +16,6 @@ pub mod driver;
 pub mod gdt;
 pub mod idt;
 pub mod int;
-pub mod logger;
 pub mod memory;
 pub mod panic;
 pub mod pic;
@@ -47,14 +45,17 @@ pub fn init(boot_info: &'static mut BootInfo) {
         boot_info.physical_memory_offset,
         &mut boot_info.memory_regions,
     );
-    init_logger(&mut boot_info.framebuffer);
+    let mut executor = task::executor::Executor::new();
+    executor.spawn(task::task::Task::new(logging_task(&mut boot_info.framebuffer)));
+    executor.run_ready_tasks();
     gdt::gdt::init_gdt();
     idt::idt::init_idt();
     pic::pic::init_pics();
+    timer::timer::setup_rtc();
     x86_64::instructions::interrupts::enable();
-
-    let mut executor = task::executor::Executor::new();
-    executor.spawn(task::task::Task::new(keyboard::task::print_keypresses()));
+    println("enabled interrupts...");
+    executor.spawn(task::task::Task::new(keyboard::task::scancode_task()));
+    println("running loop...");
     executor.run();
 }
 

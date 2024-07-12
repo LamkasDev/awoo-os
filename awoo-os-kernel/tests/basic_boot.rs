@@ -4,7 +4,7 @@
 #![test_runner(awoo_os_kernel::test::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use awoo_os_kernel::hlt_loop;
+use awoo_os_kernel::{driver::shell::queue::println, hlt_loop};
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
@@ -14,7 +14,5 @@ pub extern "C" fn _start() -> ! {
 
 #[test_case]
 fn test_println() {
-    use awoo_os_kernel::println;
-
-    println!("test_println output");
+    println("test_println output");
 }

@@ -25,9 +25,9 @@ pub const BACKUP_CHAR: char = '�';
 pub const FONT_WEIGHT: FontWeight = FontWeight::Regular;
 
 /// Returns the raster of the given char or the raster of [`font_constants::BACKUP_CHAR`].
-pub fn get_char_raster(c: char) -> RasterizedChar {
-    fn get(c: char) -> Option<RasterizedChar> {
-        get_raster(c, FONT_WEIGHT, CHAR_RASTER_HEIGHT)
+pub fn get_char_raster(c: char, size: RasterHeight) -> RasterizedChar {
+    fn get(c: char, size: RasterHeight) -> Option<RasterizedChar> {
+        get_raster(c, FONT_WEIGHT, size)
     }
-    get(c).unwrap_or_else(|| get(BACKUP_CHAR).expect("Should get raster of backup char."))
+    get(c, size).unwrap_or_else(|| get(BACKUP_CHAR, size).expect("Should get raster of backup char."))
 }

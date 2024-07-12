@@ -1,13 +1,13 @@
 use crate::{
-    driver::{keyboard::keyboard, timer::timer},
+    driver::{keyboard::keyboard, shell::queue::println, timer::timer},
     gdt::tss,
     hlt_loop,
     int::int,
-    println,
 };
+use alloc::format;
 use lazy_static::lazy_static;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
-use x86_64::{registers::control::Cr2, structures::idt::PageFaultErrorCode};
+use x86_64::{registers::control::Cr2, structures::idt::{InterruptDescriptorTable, InterruptStackFrame}};
+use x86_64::structures::idt::PageFaultErrorCode;
 
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
@@ -22,26 +22,28 @@ lazy_static! {
         idt[int::InterruptIndex::Timer.as_usize()].set_handler_fn(timer::timer_interrupt_handler);
         idt[int::InterruptIndex::Keyboard.as_usize()]
             .set_handler_fn(keyboard::keyboard_interrupt_handler);
+        idt[int::InterruptIndex::RTC.as_usize()].set_handler_fn(timer::rtc_interrupt_handler);
         idt
     };
 }
 
 pub fn init_idt() {
     IDT.load();
+    println("initialized IDT...");
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
-    println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
+    println(&format!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame));
 }
 
 extern "x86-interrupt" fn page_fault_handler(
     stack_frame: InterruptStackFrame,
     error_code: PageFaultErrorCode,
 ) {
-    println!("EXCEPTION: PAGE FAULT");
-    println!("Accessed Address: {:?}", Cr2::read());
-    println!("Error Code: {:?}", error_code);
-    println!("{:#?}", stack_frame);
+    println("EXCEPTION: PAGE FAULT");
+    println(&format!("Accessed Address: {:?}", Cr2::read()));
+    println(&format!("Error Code: {:?}", error_code));
+    println(&format!("{:#?}", stack_frame));
     hlt_loop();
 }
 

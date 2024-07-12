@@ -2,6 +2,7 @@ use std::env;
 
 fn main() {
     let bios_path = env::var("BIOS_PATH").unwrap();
+    println!("Path: {}", bios_path);
     let mut command = std::process::Command::new("qemu-system-x86_64");
     command
         .arg("-drive")

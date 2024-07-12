@@ -4,7 +4,7 @@
 #![test_runner(awoo_os_kernel::test::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use awoo_os_kernel::{hlt_loop, println, BOOTLOADER_CONFIG};
+use awoo_os_kernel::{hlt_loop, BOOTLOADER_CONFIG};
 use bootloader_api::{entry_point, BootInfo};
 
 entry_point!(kernel_main, config = &BOOTLOADER_CONFIG);
