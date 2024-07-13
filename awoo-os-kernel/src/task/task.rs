@@ -1,10 +1,13 @@
-use core::{future::Future, pin::Pin, sync::atomic::{AtomicU64, Ordering}};
 use alloc::boxed::Box;
 use core::task::{Context, Poll};
+use core::{
+    future::Future,
+    pin::Pin,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TaskId(u64);
-
 
 impl TaskId {
     pub fn new() -> Self {
@@ -25,7 +28,7 @@ impl Task {
             future: Box::pin(future),
         }
     }
-    
+
     pub fn poll(&mut self, context: &mut Context) -> Poll<()> {
         self.future.as_mut().poll(context)
     }

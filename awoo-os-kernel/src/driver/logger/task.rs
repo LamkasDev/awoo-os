@@ -1,10 +1,17 @@
-use crate::{driver::framebuffer::framebuffer::FrameBufferWriter, memory::heap::{HEAP_SIZE, HEAP_START}};
+use core::sync::atomic::Ordering;
+
+use super::queue::{print_picture, println, LoggerStream};
+use crate::{
+    driver::framebuffer::framebuffer::FrameBufferWriter,
+    memory::{
+        heap::{HEAP_SIZE, HEAP_START},
+        memory::PHYSICAL_MEMORY_OFFSET,
+    },
+};
 use alloc::format;
 use bootloader_api::info::{FrameBuffer, Optional};
-use embedded_graphics::{geometry::Dimensions, pixelcolor::RgbColor};
+use embedded_graphics::pixelcolor::RgbColor;
 use futures_util::StreamExt;
-use tinytga::Tga;
-use super::queue::{print_picture, println, LoggerStream};
 
 pub const KITTY_PICTURE: &[u8] = include_bytes!("../../../assets/cat.tga");
 pub const KITTY_PICTURE_2: &[u8] = include_bytes!("../../../assets/cat_2.tga");
@@ -28,14 +35,21 @@ pub async fn logging_task(frame_buffer_optional: &'static mut Optional<FrameBuff
     // Setup environment
     let mut stream = LoggerStream::new();
     print_picture(KITTY_PICTURE);
-    println("Hello from awoo-os!");
-    println(&format!("initialized heap with {} bytes at {:#012x}.", HEAP_SIZE, HEAP_START));
+    println("hello from awoo-os!");
+    println(&format!(
+        "physical memory is mapped at {:#012x}..",
+        PHYSICAL_MEMORY_OFFSET.load(Ordering::SeqCst)
+    ));
+    println(&format!(
+        "initialized heap at {:#012x} ({} bytes)...",
+        HEAP_START, HEAP_SIZE
+    ));
 
     // Run task
     while let Some(action) = stream.next().await {
         match action.text {
             Some(v) => {
-                for c in v{
+                for c in v {
                     framebuffer.write_char(c);
                 }
             }
@@ -44,7 +58,7 @@ pub async fn logging_task(frame_buffer_optional: &'static mut Optional<FrameBuff
         match action.image {
             Some(v) => {
                 for ele in v {
-                    framebuffer.set_pixel(
+                    framebuffer.write_pixel(
                         ele.0.x as usize,
                         ele.0.y as usize,
                         ele.1.r(),
@@ -52,7 +66,6 @@ pub async fn logging_task(frame_buffer_optional: &'static mut Optional<FrameBuff
                         ele.1.b(),
                     );
                 }
-                framebuffer.y_pos = action.image_size.unwrap().1 as usize
             }
             None => {}
         }

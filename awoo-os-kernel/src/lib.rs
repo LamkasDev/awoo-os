@@ -8,18 +8,27 @@
 #[cfg(test)]
 use bootloader_api::entry_point;
 use bootloader_api::{config::Mapping, BootInfo, BootloaderConfig};
-use driver::{keyboard, shell::{queue::println, task::logging_task}, timer::{self}};
+use constants::constants::FORCE_PIC;
+use driver::{
+    acpi::acpi::init_acpi,
+    keyboard::task::scancode_task,
+    logger::{queue::println, task::logging_task},
+    pic::pic::init_pics,
+    rtc::rtc::init_rtc,
+};
+use gdt::gdt::init_gdt;
+use idt::idt::init_idt;
+use memory::memory::init_memory;
 
 extern crate alloc;
 
+pub mod constants;
 pub mod driver;
 pub mod gdt;
 pub mod idt;
 pub mod int;
 pub mod memory;
 pub mod panic;
-pub mod pic;
-pub mod serial;
 pub mod special;
 pub mod task;
 pub mod test;
@@ -41,20 +50,29 @@ fn test_kernel_main(boot_info: &'static mut BootInfo) -> ! {
 }
 
 pub fn init(boot_info: &'static mut BootInfo) {
-    memory::memory::init_memory(
+    init_memory(
         boot_info.physical_memory_offset,
         &mut boot_info.memory_regions,
     );
     let mut executor = task::executor::Executor::new();
-    executor.spawn(task::task::Task::new(logging_task(&mut boot_info.framebuffer)));
+    executor.spawn(task::task::Task::new(logging_task(
+        &mut boot_info.framebuffer,
+    )));
     executor.run_ready_tasks();
-    gdt::gdt::init_gdt();
-    idt::idt::init_idt();
-    pic::pic::init_pics();
-    timer::timer::setup_rtc();
+    init_gdt();
+    init_idt();
+    if !FORCE_PIC && unsafe { init_acpi(boot_info.rsdp_addr) } {
+        println("interrupt source: APIC");
+        println("time source: APIC timer");
+    } else {
+        init_pics();
+        init_rtc();
+        println("interrupt source: PIC");
+        println("time source: RTC");
+    }
     x86_64::instructions::interrupts::enable();
     println("enabled interrupts...");
-    executor.spawn(task::task::Task::new(keyboard::task::scancode_task()));
+    executor.spawn(task::task::Task::new(scancode_task()));
     println("running loop...");
     executor.run();
 }

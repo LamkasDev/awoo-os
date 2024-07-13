@@ -1,13 +1,19 @@
+use core::sync::atomic::{AtomicU64, Ordering};
+
 use super::{frame, heap, page};
 use bootloader_api::info::{MemoryRegions, Optional};
 use x86_64::VirtAddr;
+
+pub static PHYSICAL_MEMORY_OFFSET: AtomicU64 = AtomicU64::new(0);
 
 pub fn init_memory(
     physical_memory_offset: Optional<u64>,
     memory_regions: &'static mut MemoryRegions,
 ) {
-    let phys_mem_offset = VirtAddr::new(physical_memory_offset.into_option().unwrap());
-    let mut mapper = unsafe { page::init_page_table(phys_mem_offset) };
+    let physical_memory_offset_raw = physical_memory_offset.into_option().unwrap();
+    PHYSICAL_MEMORY_OFFSET.store(physical_memory_offset_raw, Ordering::SeqCst);
+    let physical_memory_offset = VirtAddr::new(physical_memory_offset_raw);
+    let mut mapper = unsafe { page::init_page_table(physical_memory_offset) };
     let mut frame_allocator = unsafe { frame::BootInfoFrameAllocator::init(memory_regions) };
     heap::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 }

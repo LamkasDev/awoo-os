@@ -1,4 +1,4 @@
-use crate::driver::shell::queue::println;
+use crate::driver::logger::queue::println;
 
 use super::queue::ScancodeStream;
 use alloc::{format, string::ToString};

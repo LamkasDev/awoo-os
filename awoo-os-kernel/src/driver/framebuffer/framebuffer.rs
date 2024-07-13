@@ -38,10 +38,9 @@ impl FrameBufferWriter {
         self.x_pos = font::BORDER_PADDING;
     }
 
-    /// Erases all text on the screen. Resets `self.x_pos` and `self.y_pos`.
     pub fn clear(&mut self) {
         self.x_pos = font::BORDER_PADDING;
-        self.y_pos = font::BORDER_PADDING;
+        self.y_pos = font::BORDER_PADDING + 126;
         self.framebuffer.fill(0);
     }
 
@@ -57,13 +56,13 @@ impl FrameBufferWriter {
         self.raster_height = size;
         self.raster_width = get_raster_width(FontWeight::Regular, self.raster_height);
     }
-    
+
     pub fn write_str(&mut self, s: &str) {
         for c in s.chars() {
             self.write_char(c);
         }
     }
-    
+
     pub fn write_str_vec(&mut self, s: Vec<char>) {
         for c in s {
             self.write_char(c);
@@ -95,37 +94,19 @@ impl FrameBufferWriter {
     pub fn write_rendered_char(&mut self, rendered_char: RasterizedChar) {
         for (y, row) in rendered_char.raster().iter().enumerate() {
             for (x, byte) in row.iter().enumerate() {
-                self.write_pixel(self.x_pos + x, self.y_pos + y, *byte);
+                self.write_pixel(self.x_pos + x, self.y_pos + y, *byte, *byte, *byte / 2);
             }
         }
         self.x_pos += rendered_char.width() + font::LETTER_SPACING;
     }
 
-    pub fn write_pixel(&mut self, x: usize, y: usize, intensity: u8) {
-        let pixel_offset = y * self.info.stride + x;
-        let color = match self.info.pixel_format {
-            PixelFormat::Rgb => [intensity, intensity, intensity / 2, 0],
-            PixelFormat::Bgr => [intensity / 2, intensity, intensity, 0],
-            PixelFormat::U8 => [if intensity > 200 { 0xf } else { 0 }, 0, 0, 0],
-            other => {
-                // set a supported (but invalid) pixel format before panicking to avoid a double
-                // panic; it might not be readable though
-                self.info.pixel_format = PixelFormat::Rgb;
-                panic!("pixel format {:?} not supported in logger", other)
-            }
-        };
-        let bytes_per_pixel = self.info.bytes_per_pixel;
-        let byte_offset = pixel_offset * bytes_per_pixel;
-        self.framebuffer[byte_offset..(byte_offset + bytes_per_pixel)]
-            .copy_from_slice(&color[..bytes_per_pixel]);
-        let _ = unsafe { ptr::read_volatile(&self.framebuffer[byte_offset]) };
-    }
-
-    pub fn set_pixel(&mut self, x: usize, y: usize, r: u8, g: u8, b: u8) {
+    // Sets a pixel at specified location with RGB colors.
+    pub fn write_pixel(&mut self, x: usize, y: usize, r: u8, g: u8, b: u8) {
         let pixel_offset = y * self.info.stride + x;
         let color = match self.info.pixel_format {
             PixelFormat::Rgb => [r, g, b, 0],
             PixelFormat::Bgr => [b, g, r, 0],
+            PixelFormat::U8 => [if r > 200 { 0xf } else { 0 }, 0, 0, 0],
             other => {
                 // set a supported (but invalid) pixel format before panicking to avoid a double
                 // panic; it might not be readable though
