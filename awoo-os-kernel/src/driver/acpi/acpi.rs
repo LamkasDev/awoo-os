@@ -1,15 +1,11 @@
 use crate::{
-    driver::{
-        apic::apic::{init_apic, APIC_OFFSET},
-        logger::queue::println,
-    },
+    driver::{apic::apic::init_apic, ioapic::ioapic::init_ioapic, logger::logger::println},
     memory::memory::PHYSICAL_MEMORY_OFFSET,
 };
 use acpi::{AcpiHandler, AcpiTables, PhysicalMapping};
 use alloc::format;
 use bootloader_api::info::Optional;
-use core::{ptr::NonNull, sync::atomic::Ordering};
-use x2apic::ioapic::IoApic;
+use core::ptr::NonNull;
 
 static ACPI_HANDLER: AwooAcpiHandler = AwooAcpiHandler {};
 
@@ -22,7 +18,7 @@ impl AcpiHandler for AwooAcpiHandler {
         physical_address: usize,
         size: usize,
     ) -> acpi::PhysicalMapping<Self, T> {
-        let offset = PHYSICAL_MEMORY_OFFSET.load(Ordering::SeqCst);
+        let offset = *PHYSICAL_MEMORY_OFFSET.lock();
         let address = offset + physical_address as u64;
         let mapping = PhysicalMapping::new(
             physical_address,
@@ -53,35 +49,23 @@ pub unsafe fn init_acpi(rsdp_address: Optional<u64>) -> bool {
                         "discovered local apic at {:#012x}...",
                         apic.local_apic_address
                     ));
-                    for a in apic.io_apics.iter() {
+                    for ioapic in apic.io_apics.iter() {
                         println(&format!(
-                            "found ioapic {} with base {} at {:#012x}",
-                            a.id, a.global_system_interrupt_base, a.address
+                            "discovered ioapic {} with base {} at {:#012x}",
+                            ioapic.id, ioapic.global_system_interrupt_base, ioapic.address
                         ));
-                        let mut ioapic = IoApic::new(
-                            PHYSICAL_MEMORY_OFFSET.load(Ordering::SeqCst) + a.address as u64,
-                        );
-                        ioapic.init(APIC_OFFSET);
-                        ioapic.enable_irq(1);
+                        init_ioapic(&apic, ioapic);
                     }
-                    for a in apic.nmi_sources.iter() {
+                    /* for a in apic.nmi_sources.iter() {
                         println(&format!("found nmi with gsi {}", a.global_system_interrupt));
-                    }
-                    for a in apic.interrupt_source_overrides.iter() {
-                        println(&format!(
-                            "found override with gsi {} and source {}",
-                            a.global_system_interrupt, a.isa_source
-                        ));
                     }
                     for a in apic.local_apic_nmi_lines.iter() {
                         println(&format!(
                             "found lapic nmi line {:?} at {:?}",
                             a.line, a.processor
                         ));
-                    }
-                    init_apic(
-                        PHYSICAL_MEMORY_OFFSET.load(Ordering::SeqCst) + apic.local_apic_address,
-                    );
+                    } */
+                    init_apic(*PHYSICAL_MEMORY_OFFSET.lock() + apic.local_apic_address);
 
                     return true;
                 }

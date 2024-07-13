@@ -1,4 +1,3 @@
-use crate::driver::logger::queue::println;
 use conquer_once::spin::OnceCell;
 use core::{
     pin::Pin,
@@ -6,6 +5,8 @@ use core::{
 };
 use crossbeam_queue::ArrayQueue;
 use futures_util::{task::AtomicWaker, Stream};
+
+use crate::driver::logger::logger::println;
 
 static SCANCODE_WAKER: AtomicWaker = AtomicWaker::new();
 static SCANCODE_QUEUE: OnceCell<ArrayQueue<u8>> = OnceCell::uninit();
@@ -48,12 +49,14 @@ impl Stream for ScancodeStream {
 
         // fast path
         if let Some(scancode) = queue.pop() {
+            // println("popped keyboard");
             return Poll::Ready(Some(scancode));
         }
 
         SCANCODE_WAKER.register(&cx.waker());
         match queue.pop() {
             Some(scancode) => {
+                // println("popped keyboard");
                 SCANCODE_WAKER.take();
                 Poll::Ready(Some(scancode))
             }

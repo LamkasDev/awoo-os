@@ -3,10 +3,9 @@ use core::panic::PanicInfo;
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    use crate::{driver::logger::queue::println, hlt_loop, serial_println};
+    use crate::{driver::logger::logger::println, hlt_loop};
     use alloc::format;
 
-    serial_println!("{}", info);
     println(&format!("{}", info));
     hlt_loop();
 }

@@ -1,4 +1,4 @@
-use crate::driver::{apic::apic::APIC_OFFSET, pic::pic::PIC_1_OFFSET};
+use crate::driver::{ioapic::ioapic::IO_APIC_OFFSET, pic::pic::PIC_1_OFFSET};
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
@@ -20,12 +20,26 @@ pub enum InterruptIndex {
     PrimaryATA,
     SecondaryATA,
 
-    LapicFirst = APIC_OFFSET,
-    LapicKeyboard,
+    IoApicTimer = IO_APIC_OFFSET,
+    IoApicKeyboard,
+    IoApic2,
+    IoApic3,
+    IoApic4,
+    IoApic5,
+    IoApic6,
+    IoApic7,
+    IoApic8,
+    IoApic9,
+    IoApic10,
+    IoApic11,
+    IoApic12,
+    IoApic13,
+    IoApic14,
+    IoApic15,
 
-    LapicSpurrious = 100,
-    LapicError,
-    LapicTimer,
+    LocalApicSpurrious = 100,
+    LocalApicError,
+    LocalApicTimer,
 }
 
 impl InterruptIndex {

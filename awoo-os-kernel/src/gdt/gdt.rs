@@ -1,4 +1,4 @@
-use crate::driver::logger::queue::println;
+use crate::driver::logger::logger::println;
 use crate::gdt::tss;
 use lazy_static::lazy_static;
 use x86_64::instructions::segmentation::{Segment, CS};

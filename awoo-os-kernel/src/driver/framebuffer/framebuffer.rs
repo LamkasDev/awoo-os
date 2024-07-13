@@ -7,6 +7,7 @@ use noto_sans_mono_bitmap::{get_raster_width, FontWeight, RasterHeight, Rasteriz
 /// Allows logging text to a pixel-based framebuffer.
 pub struct FrameBufferWriter {
     pub framebuffer: &'static mut [u8],
+    pub framebuffer_buffer: Vec<u8>,
     pub info: FrameBufferInfo,
     pub x_pos: usize,
     pub y_pos: usize,
@@ -19,12 +20,16 @@ impl FrameBufferWriter {
     pub fn new(framebuffer: &'static mut [u8], info: FrameBufferInfo) -> Self {
         let mut logger = Self {
             framebuffer,
+            framebuffer_buffer: Vec::new(),
             info,
             x_pos: 0,
             y_pos: 0,
             raster_height: CHAR_RASTER_HEIGHT,
             raster_width: CHAR_RASTER_WIDTH,
         };
+        logger
+            .framebuffer_buffer
+            .resize(logger.framebuffer.len(), 0);
         logger.clear();
         logger
     }
@@ -41,7 +46,7 @@ impl FrameBufferWriter {
     pub fn clear(&mut self) {
         self.x_pos = font::BORDER_PADDING;
         self.y_pos = font::BORDER_PADDING + 126;
-        self.framebuffer.fill(0);
+        self.framebuffer_buffer.fill(0);
     }
 
     pub fn width(&self) -> usize {
@@ -116,9 +121,13 @@ impl FrameBufferWriter {
         };
         let bytes_per_pixel = self.info.bytes_per_pixel;
         let byte_offset = pixel_offset * bytes_per_pixel;
-        self.framebuffer[byte_offset..(byte_offset + bytes_per_pixel)]
+        self.framebuffer_buffer[byte_offset..(byte_offset + bytes_per_pixel)]
             .copy_from_slice(&color[..bytes_per_pixel]);
-        let _ = unsafe { ptr::read_volatile(&self.framebuffer[byte_offset]) };
+        let _ = unsafe { ptr::read_volatile(&self.framebuffer_buffer[byte_offset]) };
+    }
+
+    pub fn swap_buffer(&mut self) {
+        self.framebuffer.copy_from_slice(&self.framebuffer_buffer);
     }
 }
 

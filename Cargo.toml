@@ -6,6 +6,9 @@ edition = "2021"
 [workspace]
 members = ["awoo-os-kernel"]
 
+[dependencies]
+ovmf-prebuilt = "0.1.0-alpha.1"
+
 [build-dependencies]
 awoo-os-kernel = { path = "awoo-os-kernel", artifact = "bin", target = "x86_64-unknown-none" }
 bootloader = "0.11.3"

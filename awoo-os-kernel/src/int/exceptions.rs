@@ -1,4 +1,4 @@
-use crate::{driver::logger::queue::println, hlt_loop};
+use crate::{driver::logger::logger::println, hlt_loop};
 use alloc::format;
 use x86_64::{
     registers::control::Cr2,

@@ -1,11 +1,11 @@
-use crate::driver::logger::queue::println;
+use crate::driver::logger::logger::println;
 
 use super::queue::ScancodeStream;
 use alloc::{format, string::ToString};
 use futures_util::StreamExt;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 
-pub async fn scancode_task() {
+pub async fn keyboard_task() {
     let mut scancodes = ScancodeStream::new();
     let mut keyboard = Keyboard::new(
         ScancodeSet1::new(),
