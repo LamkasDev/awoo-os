@@ -62,33 +62,33 @@ lazy_static! {
         idt.virtualization.set_handler_fn(virtualization_handler);
 
         // External interrupts for PIC
-        idt[InterruptIndex::Timer.as_usize()].set_handler_fn(pic_timer_handler);
-        idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(pic_keyboard_handler);
-        idt[InterruptIndex::Rtc.as_usize()].set_handler_fn(rtc_interrupt_handler);
-        idt[InterruptIndex::Mouse.as_usize()].set_handler_fn(pic_mouse_handler);
+        idt[InterruptIndex::Timer.as_u8()].set_handler_fn(pic_timer_handler);
+        idt[InterruptIndex::Keyboard.as_u8()].set_handler_fn(pic_keyboard_handler);
+        idt[InterruptIndex::Rtc.as_u8()].set_handler_fn(rtc_interrupt_handler);
+        idt[InterruptIndex::Mouse.as_u8()].set_handler_fn(pic_mouse_handler);
 
         // External interrupts for APIC
-        idt[InterruptIndex::LocalApicSpurrious.as_usize()].set_handler_fn(apic_si_handler);
-        idt[InterruptIndex::LocalApicError.as_usize()].set_handler_fn(apic_err_handler);
-        idt[InterruptIndex::LocalApicTimer.as_usize()].set_handler_fn(apic_timer_handler);
+        idt[InterruptIndex::LocalApicSpurrious.as_u8()].set_handler_fn(apic_si_handler);
+        idt[InterruptIndex::LocalApicError.as_u8()].set_handler_fn(apic_err_handler);
+        idt[InterruptIndex::LocalApicTimer.as_u8()].set_handler_fn(apic_timer_handler);
 
         // External interrupts for IO APIC
-        idt[InterruptIndex::IoApicTimer.as_usize()].set_handler_fn(io_apic_timer_handler);
-        idt[InterruptIndex::IoApicKeyboard.as_usize()].set_handler_fn(io_apic_keyboard_handler);
-        idt[InterruptIndex::IoApic2.as_usize()].set_handler_fn(apic_2_handler);
-        idt[InterruptIndex::IoApic3.as_usize()].set_handler_fn(apic_3_handler);
-        idt[InterruptIndex::IoApic4.as_usize()].set_handler_fn(apic_4_handler);
-        idt[InterruptIndex::IoApic5.as_usize()].set_handler_fn(apic_5_handler);
-        idt[InterruptIndex::IoApic6.as_usize()].set_handler_fn(apic_6_handler);
-        idt[InterruptIndex::IoApic7.as_usize()].set_handler_fn(apic_7_handler);
-        idt[InterruptIndex::IoApic8.as_usize()].set_handler_fn(apic_8_handler);
-        idt[InterruptIndex::IoApic9.as_usize()].set_handler_fn(apic_9_handler);
-        idt[InterruptIndex::IoApic10.as_usize()].set_handler_fn(apic_10_handler);
-        idt[InterruptIndex::IoApic11.as_usize()].set_handler_fn(apic_11_handler);
-        idt[InterruptIndex::IoApic12.as_usize()].set_handler_fn(io_apic_mouse_handler);
-        idt[InterruptIndex::IoApic13.as_usize()].set_handler_fn(apic_13_handler);
-        idt[InterruptIndex::IoApic14.as_usize()].set_handler_fn(apic_14_handler);
-        idt[InterruptIndex::IoApic15.as_usize()].set_handler_fn(apic_15_handler);
+        idt[InterruptIndex::IoApicTimer.as_u8()].set_handler_fn(io_apic_timer_handler);
+        idt[InterruptIndex::IoApicKeyboard.as_u8()].set_handler_fn(io_apic_keyboard_handler);
+        idt[InterruptIndex::IoApic2.as_u8()].set_handler_fn(apic_2_handler);
+        idt[InterruptIndex::IoApic3.as_u8()].set_handler_fn(apic_3_handler);
+        idt[InterruptIndex::IoApic4.as_u8()].set_handler_fn(apic_4_handler);
+        idt[InterruptIndex::IoApic5.as_u8()].set_handler_fn(apic_5_handler);
+        idt[InterruptIndex::IoApic6.as_u8()].set_handler_fn(apic_6_handler);
+        idt[InterruptIndex::IoApic7.as_u8()].set_handler_fn(apic_7_handler);
+        idt[InterruptIndex::IoApic8.as_u8()].set_handler_fn(apic_8_handler);
+        idt[InterruptIndex::IoApic9.as_u8()].set_handler_fn(apic_9_handler);
+        idt[InterruptIndex::IoApic10.as_u8()].set_handler_fn(apic_10_handler);
+        idt[InterruptIndex::IoApic11.as_u8()].set_handler_fn(apic_11_handler);
+        idt[InterruptIndex::IoApic12.as_u8()].set_handler_fn(io_apic_mouse_handler);
+        idt[InterruptIndex::IoApic13.as_u8()].set_handler_fn(apic_13_handler);
+        idt[InterruptIndex::IoApic14.as_u8()].set_handler_fn(apic_14_handler);
+        idt[InterruptIndex::IoApic15.as_u8()].set_handler_fn(apic_15_handler);
         idt
     };
 }

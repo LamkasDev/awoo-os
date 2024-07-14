@@ -61,6 +61,7 @@ pub async fn screen_task(frame_buffer_optional: &'static mut Optional<FrameBuffe
         drop(lines);
         let pos = MOUSE_POSITION.lock();
         framebuffer.write_pixel(pos.x as usize, pos.y as usize, 255, 0, 0);
+        drop(pos);
         framebuffer.swap_buffer();
         let end = get_total_ms();
         println(&format!("frame took {} ms", end - start));
